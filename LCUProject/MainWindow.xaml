@@ -3,152 +3,101 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:HelperSylas.ViewModels"
         xmlns:local="clr-namespace:HelperSylas"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         Title="Seraphine LCU" Height="800" Width="1200"
         Background="{StaticResource AppBackground}" WindowStartupLocation="CenterScreen"
         FontFamily="Segoe UI Variable, Segoe UI">
 
     <Window.Resources>
-        <!-- ================================================================== -->
-        <!-- 必须在这里定义转换器，否则会报 "无法找到资源" 错误 -->
-        <!-- ================================================================== -->
         <local:IndexToVisibilityConverter x:Key="IndexToVisibility"/>
         <local:RankToColorConverter x:Key="RankColor"/>
         <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <!-- ================================================================== -->
 
-        <!-- 召唤师资料模板 -->
         <DataTemplate x:Key="SummonerTemplate" DataType="{x:Type vm:SummonerProfileViewModel}">
             <Grid Margin="0,0,15,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-
-                <!-- 1. 顶部个人信息卡片 -->
-                <Border Grid.Row="0" Background="White" CornerRadius="8" Padding="30" Margin="0,0,0,20">
-                    <Border.Effect>
-                        <DropShadowEffect Color="#000" BlurRadius="20" ShadowDepth="4" Opacity="0.05"/>
-                    </Border.Effect>
+                <Border Grid.Row="0" Background="{StaticResource CardBackground}" CornerRadius="8" Padding="30" Margin="0,0,0,20">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-
-                        <!-- 头像区域 -->
                         <Grid Width="100" Height="100">
-                            <Ellipse Stroke="#F0F0F0" StrokeThickness="4"/>
-                            <Ellipse Stroke="{StaticResource SystemAccentColor}" StrokeThickness="4" StrokeDashArray="80,20">
-                                <Ellipse.RenderTransform>
-                                    <RotateTransform Angle="-45" CenterX="50" CenterY="50"/>
-                                </Ellipse.RenderTransform>
-                            </Ellipse>
-                            <Image Source="{Binding IconUrl}" Margin="8" RenderOptions.BitmapScalingMode="HighQuality">
+                            <Ellipse Stroke="#333" StrokeThickness="4"/>
+                            <Image Source="{Binding IconUrl}" Margin="8">
                                 <Image.Clip>
                                     <EllipseGeometry Center="42,42" RadiusX="42" RadiusY="42"/>
                                 </Image.Clip>
                             </Image>
-                            <Border VerticalAlignment="Bottom" HorizontalAlignment="Center" Background="#202020" CornerRadius="10" Padding="8,2" Margin="0,0,0,-10">
-                                <TextBlock Text="{Binding LevelText}" Foreground="White" FontSize="12" FontWeight="Bold"/>
+                            <Border VerticalAlignment="Bottom" HorizontalAlignment="Center" Background="{StaticResource SystemAccentColor}" CornerRadius="10" Padding="8,2" Margin="0,0,0,-10">
+                                <TextBlock Text="{Binding LevelText}" Foreground="Black" FontSize="12" FontWeight="Bold"/>
                             </Border>
                         </Grid>
-
-                        <!-- 名字与段位 -->
                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="30,0,0,0">
-                            <TextBlock Text="{Binding DisplayName}" FontSize="28" FontWeight="Bold" 
-                                       Cursor="Hand" ToolTip="点击复制名字" Background="Transparent">
+                            <TextBlock Text="{Binding DisplayName}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" Cursor="Hand" ToolTip="点击复制">
                                 <TextBlock.InputBindings>
                                     <MouseBinding MouseAction="LeftClick" Command="{Binding CopyNameCommand}"/>
                                 </TextBlock.InputBindings>
                             </TextBlock>
-
                             <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                <Border Background="#F5F5F5" CornerRadius="4" Padding="8,4">
+                                <Border Background="#333" CornerRadius="4" Padding="8,4">
                                     <TextBlock Text="{Binding RankText}" Foreground="{Binding RankText, Converter={StaticResource RankColor}}" FontWeight="Bold"/>
                                 </Border>
-                                <TextBlock Text="{Binding RankLp}" Foreground="Gray" Margin="10,4,0,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding RankLp}" Foreground="{StaticResource TextSecondary}" Margin="10,4,0,0" VerticalAlignment="Center"/>
                             </StackPanel>
                         </StackPanel>
                     </Grid>
                 </Border>
-
-                <!-- 2. 战绩列表 -->
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding MatchList}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="White" CornerRadius="6" Margin="0,0,5,10" MinHeight="85" BorderBrush="#EAEAEA" BorderThickness="1">
+                                <Border Background="{StaticResource CardBackground}" CornerRadius="6" Margin="0,0,5,10" MinHeight="85" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" Command="{Binding OpenDetailCommand}"/>
+                                    </Border.InputBindings>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="6"/>
-                                            <!-- 颜色条 -->
                                             <ColumnDefinition Width="100"/>
-                                            <!-- 结果 -->
                                             <ColumnDefinition Width="80"/>
-                                            <!-- 头像 -->
                                             <ColumnDefinition Width="140"/>
-                                            <!-- KDA -->
                                             <ColumnDefinition Width="110"/>
-                                            <!-- 经济 -->
                                             <ColumnDefinition Width="*"/>
-                                            <!-- 装备 -->
                                             <ColumnDefinition Width="120"/>
-                                            <!-- 时间 -->
                                         </Grid.ColumnDefinitions>
-
                                         <Rectangle Grid.Column="0" Fill="{Binding ResultBarColor}" RadiusX="2" RadiusY="2"/>
-
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
                                             <TextBlock Text="{Binding ResultText}" FontWeight="Bold" Foreground="{Binding ResultColor}" FontSize="15"/>
                                             <TextBlock Text="{Binding ModeText}" Foreground="{StaticResource TextSecondary}" FontSize="12" Margin="0,4,0,0"/>
-                                            <TextBlock Text="{Binding DurationText}" Foreground="#CCC" FontSize="11" Margin="0,4,0,0"/>
                                         </StackPanel>
-
-                                        <Grid Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                            <Image Source="{Binding ChampionIconUrl}" Width="52" Height="52">
-                                                <Image.Clip>
-                                                    <EllipseGeometry Center="26,26" RadiusX="26" RadiusY="26"/>
-                                                </Image.Clip>
-                                            </Image>
-                                            <Border Background="#333" CornerRadius="6" Padding="4,1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,-5,-5">
-                                                <TextBlock Text="{Binding LevelText}" Foreground="White" FontSize="10"/>
-                                            </Border>
-                                        </Grid>
-
-                                        <StackPanel Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0">
+                                        <Image Grid.Column="2" Source="{Binding ChampionIconUrl}" Width="52" Height="52" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="10,0,0,0">
                                             <TextBlock Text="{Binding KdaText}" FontWeight="Bold" FontSize="18" Foreground="{StaticResource TextPrimary}"/>
-                                            <TextBlock Text="K / D / A" FontSize="10" Foreground="#AAA" Margin="0,2,0,0"/>
+                                            <TextBlock Text="KDA" FontSize="10" Foreground="{StaticResource TextSecondary}"/>
                                         </StackPanel>
-
-                                        <StackPanel Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Left">
-                                            <TextBlock Text="{Binding CsText}" Foreground="{StaticResource TextSecondary}" FontSize="13"/>
-                                            <TextBlock Text="{Binding GoldText}" Foreground="#DAA520" FontSize="13" Margin="0,4,0,0" FontWeight="SemiBold"/>
+                                        <StackPanel Grid.Column="4" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding CsText}" Foreground="{StaticResource TextSecondary}"/>
+                                            <TextBlock Text="{Binding GoldText}" Foreground="#DAA520" FontWeight="SemiBold"/>
                                         </StackPanel>
-
-                                        <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <ItemsControl ItemsSource="{Binding ItemUrls}">
-                                                <ItemsControl.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <StackPanel Orientation="Horizontal"/>
-                                                    </ItemsPanelTemplate>
-                                                </ItemsControl.ItemsPanel>
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Border Width="34" Height="34" CornerRadius="4" Margin="0,0,4,0" Background="#F7F7F7">
-                                                            <Image Source="{Binding}"/>
-                                                        </Border>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                            <Border Width="34" Height="34" CornerRadius="17" Margin="8,0,0,0" Background="#F7F7F7">
-                                                <Image Source="{Binding TrinketUrl}"/>
-                                            </Border>
-                                        </StackPanel>
-
-                                        <StackPanel Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0">
-                                            <TextBlock Text="{Binding DateText}" Foreground="{StaticResource TextSecondary}" FontSize="12"/>
-                                        </StackPanel>
+                                        <ItemsControl Grid.Column="5" ItemsSource="{Binding ItemUrls}" VerticalAlignment="Center">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Width="34" Height="34" CornerRadius="4" Margin="0,0,4,0" Background="#333">
+                                                        <Image Source="{Binding}"/>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <TextBlock Grid.Column="6" Text="{Binding DateText}" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -159,15 +108,14 @@
         </DataTemplate>
     </Window.Resources>
 
-    <!-- 主布局 -->
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="260"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- 左侧常驻栏 -->
-        <Border Grid.Column="0" Background="White" BorderBrush="#E5E5E5" BorderThickness="0,0,1,0">
+        <!-- 侧边栏 -->
+        <Border Grid.Column="0" Background="{StaticResource CardBackground}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
             <Grid Margin="20,40,20,20">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -175,119 +123,88 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-
                 <TextBlock Text="Seraphine" FontSize="24" FontWeight="Bold" Margin="24,30,0,30" Foreground="{StaticResource SystemAccentColor}"/>
-
-                <Border Grid.Row="1" Margin="0,20,0,0" Background="#F7F9FC" CornerRadius="8" Padding="20">
+                <Border Grid.Row="1" Margin="0,20,0,0" Background="#C6D7DB" CornerRadius="8" Padding="20">
                     <StackPanel>
-                        <TextBlock Text="GAME STATUS" FontSize="10" FontWeight="Bold" Foreground="#A0A0A0"/>
+                        <TextBlock Text="GAME STATUS" FontSize="10" FontWeight="Bold" Foreground="#666"/>
                         <TextBlock Text="{Binding GamePhaseText}" FontSize="18" FontWeight="Bold" Foreground="{StaticResource SystemAccentColor}" Margin="0,8,0,0"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0" Visibility="{Binding IsAutoAcceptEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <Ellipse Width="6" Height="6" Fill="#00C060"/>
-                            <TextBlock Text="自动接受已开启" FontSize="11" Foreground="#00C060" Margin="6,0,0,0"/>
-                        </StackPanel>
                     </StackPanel>
                 </Border>
-
                 <StackPanel Grid.Row="2" Margin="0,40,0,0">
-                    <RadioButton Content="主页概览" GroupName="Nav" IsChecked="True"
-                                 Command="{Binding SwitchTabCommand}" CommandParameter="0"
-                                 Style="{StaticResource NavRadioButtonStyle}"/>
-                    <RadioButton Content="战绩查询" GroupName="Nav"
-                                 Command="{Binding SwitchTabCommand}" CommandParameter="1"
-                                 Style="{StaticResource NavRadioButtonStyle}"/>
-                    <RadioButton Content="辅助功能" GroupName="Nav"
-                                 Command="{Binding SwitchTabCommand}" CommandParameter="2"
-                                 Style="{StaticResource NavRadioButtonStyle}"/>
+                    <RadioButton Content="主页概览" GroupName="Nav" IsChecked="True" Command="{Binding SwitchTabCommand}" CommandParameter="0" Style="{StaticResource NavRadioButtonStyle}"/>
+                    <RadioButton Content="战绩查询" GroupName="Nav" Command="{Binding SwitchTabCommand}" CommandParameter="1" Style="{StaticResource NavRadioButtonStyle}"/>
+                    <RadioButton Content="辅助功能" GroupName="Nav" Command="{Binding SwitchTabCommand}" CommandParameter="2" Style="{StaticResource NavRadioButtonStyle}"/>
                 </StackPanel>
-
                 <StackPanel Grid.Row="3">
-                    <TextBlock Text="CONNECTION" FontSize="10" FontWeight="Bold" Foreground="#CCC"/>
+                    <TextBlock Text="CONNECTION" FontSize="10" FontWeight="Bold" Foreground="#666"/>
                     <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                         <Ellipse Width="8" Height="8" Fill="{Binding StatusColor}"/>
-                        <TextBlock Text="{Binding StatusText}" Margin="8,0,0,0" FontSize="12"/>
+                        <TextBlock Text="{Binding StatusText}" Margin="8,0,0,0" FontSize="12" Foreground="{StaticResource TextSecondary}"/>
                     </StackPanel>
-                    <TextBlock Text="{Binding ConnectionDetail}" FontSize="10" Foreground="#CCC" Margin="0,5,0,0" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding ConnectionDetail}" FontSize="10" Foreground="#666" Margin="0,5,0,0" TextWrapping="Wrap"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- 右侧内容区 -->
+        <!-- 内容区 -->
         <Grid Grid.Column="1" Margin="30">
+            <!-- 1. 等待动画 -->
+            <Grid Visibility="{Binding IsLcConnected, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}" Panel.ZIndex="100">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="500">
 
-            <!-- 层级 1: 等待连接动画 -->
-<Grid Visibility="{Binding IsLcConnected, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}"
-      Panel.ZIndex="100">
-    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="400">
-        
-        <!-- 应用塞拉斯主题动画 -->
-        <!-- Margin-Bottom 加大，给巨大的镣铐留出旋转空间 -->
-        <Control Style="{StaticResource SylasLoadingStyle}" Margin="0,0,0,50"/>
-        
-        <TextBlock Text="正在粉碎禁魔石镣铐..." 
-                   FontSize="20" FontWeight="Bold" 
-                   Foreground="{StaticResource TextPrimary}" 
-                   HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                    <!-- WebView2 加载动画 -->
+                    <wv2:WebView2 x:Name="LoadingWebView" Height="240" Width="240" DefaultBackgroundColor="#121212"/>
 
-        <TextBlock Text="等待连接到德玛西亚 (LCU)" 
-                   FontSize="14" Foreground="{StaticResource TextSecondary}" 
-                   HorizontalAlignment="Center"/>
-                   
-        <!-- 底部语录 -->
-        <Border Background="#F0F0F0" CornerRadius="12" Padding="15,8" Margin="0,40,0,0" HorizontalAlignment="Center">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="SYLAS:" FontWeight="Bold" Foreground="#0AC8B9" FontSize="12" Margin="0,0,8,0"/>
-                <TextBlock Text="“我们的枷锁，该打破了！”" FontStyle="Italic" Foreground="#555" FontSize="12"/>
-            </StackPanel>
-        </Border>
-    </StackPanel>
-</Grid>
+                    <!-- 标语 -->
+                    <TextBlock FontSize="26" FontWeight="Black" FontStyle="Italic" Foreground="{StaticResource TextPrimary}" HorizontalAlignment="Center" Margin="0,10,0,10">
+                        <TextBlock.Effect>
+                            <DropShadowEffect Color="{StaticResource AccentColorRaw}" BlurRadius="20" ShadowDepth="0" Opacity="0.5"/>
+                        </TextBlock.Effect>
+                        <Run Text="正在 "/>
+                        <Run Text="粉碎王冠" Foreground="{StaticResource SystemAccentColor}"/>
+                        <Run Text=" ..."/>
+                    </TextBlock>
+                    <TextBlock Text="搜寻德玛西亚信号 (LCU) 中" FontSize="14" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
 
-            <!-- 层级 2: 功能内容区 -->
+            <!-- 2. 功能区 -->
             <Grid Visibility="{Binding IsLcConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
-
-                <!-- 0. 主页 -->
+                <!-- 主页 -->
                 <Grid Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=0}">
-                    <TextBlock Text="我的主页" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
+                    <TextBlock Text="我的主页" FontSize="24" FontWeight="Bold" Margin="0,0,0,20" Foreground="{StaticResource TextPrimary}"/>
                     <ContentControl Margin="0,50,0,0" Content="{Binding MyProfile}" ContentTemplate="{StaticResource SummonerTemplate}"/>
                 </Grid>
-
-                <!-- 1. 查询 -->
+                <!-- 查询 -->
                 <Grid Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=1}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-
                     <StackPanel>
-                        <TextBlock Text="战绩查询" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
+                        <TextBlock Text="战绩查询" FontSize="24" FontWeight="Bold" Margin="0,0,0,20" Foreground="{StaticResource TextPrimary}"/>
                         <Grid Margin="0,0,0,15">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
-                                     Padding="12,10" FontSize="14" BorderThickness="0,0,0,2" Background="White"
-                                     Tag="Name#Tag">
+                            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Padding="12,10" FontSize="14" BorderThickness="0,0,0,2" Background="{StaticResource CardBackground}" Foreground="{StaticResource TextPrimary}" Tag="Name#Tag">
                                 <TextBox.InputBindings>
                                     <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
                                 </TextBox.InputBindings>
                             </TextBox>
-                            <Button Grid.Column="1" Command="{Binding SearchCommand}" Content="查询" Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0"/>
+                            <Button Grid.Column="1" Command="{Binding SearchCommand}" Content="      查询      " Style="{StaticResource AccentButtonStyle}" Margin="10,0,0,0"/>
                         </Grid>
                     </StackPanel>
-
-                    <TabControl Grid.Row="1" ItemsSource="{Binding SearchTabs}" SelectedItem="{Binding CurrentSearchTab}"
-                                Background="Transparent" BorderThickness="0">
+                    <TabControl Grid.Row="1" ItemsSource="{Binding SearchTabs}" SelectedItem="{Binding CurrentSearchTab}" Background="Transparent" BorderThickness="0">
                         <TabControl.ItemContainerStyle>
                             <Style TargetType="TabItem" BasedOn="{StaticResource WinUITabItem}"/>
                         </TabControl.ItemContainerStyle>
                         <TabControl.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding DisplayName}"/>
-                                    <Button Command="{Binding CloseCommand}" Content="×" Margin="10,0,-5,0" 
-                                            Background="Transparent" BorderThickness="0" Foreground="#999" FontSize="16" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding DisplayName}" Foreground="{StaticResource TextPrimary}"/>
+                                    <Button Command="{Binding CloseCommand}" Content="×" Margin="10,0,-5,0" Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextSecondary}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </TabControl.ItemTemplate>
@@ -298,19 +215,18 @@
                         </TabControl.ContentTemplate>
                     </TabControl>
                 </Grid>
-
-                <!-- 2. 辅助功能 -->
+                <!-- 辅助 -->
                 <Grid Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=2}">
                     <StackPanel>
-                        <TextBlock Text="辅助功能" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
-                        <Border Background="White" CornerRadius="8" Padding="25" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}">
+                        <TextBlock Text="辅助功能" FontSize="24" FontWeight="Bold" Margin="0,0,0,20" Foreground="{StaticResource TextPrimary}"/>
+                        <Border Background="{StaticResource CardBackground}" CornerRadius="8" Padding="25" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
-                                    <TextBlock Text="自动接受对局" FontWeight="Bold" FontSize="16"/>
+                                    <TextBlock Text="自动接受对局" FontWeight="Bold" FontSize="16" Foreground="{StaticResource TextPrimary}"/>
                                     <TextBlock Text="当匹配到对局时，自动点击“接受”按钮。" Foreground="{StaticResource TextSecondary}" Margin="0,8,0,0"/>
                                 </StackPanel>
                                 <CheckBox Grid.Column="1" IsChecked="{Binding IsAutoAcceptEnabled}">
@@ -322,7 +238,6 @@
                         </Border>
                     </StackPanel>
                 </Grid>
-
             </Grid>
         </Grid>
     </Grid>

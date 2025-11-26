@@ -3,272 +3,24 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <!-- =========================== -->
-        <!-- 1. 基础色板 (WinUI 3 风格) -->
-        <!-- =========================== -->
-        <SolidColorBrush x:Key="SystemAccentColor" Color="#0067C0"/>
-        <SolidColorBrush x:Key="AppBackground" Color="#F3F3F3"/>
+        <!-- 1. 颜色资源 -->
+        <Color x:Key="AccentColorRaw">#0AC8B9</Color>
+        <SolidColorBrush x:Key="SystemAccentColor" Color="{StaticResource AccentColorRaw}"/>
+        <SolidColorBrush x:Key="AppBackground" Color="#F0F3F9"/>
         <SolidColorBrush x:Key="CardBackground" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="TextPrimary" Color="#1A1A1A"/>
-        <SolidColorBrush x:Key="TextSecondary" Color="#606060"/>
-        <SolidColorBrush x:Key="BorderBrush" Color="#E5E5E5"/>
-        <SolidColorBrush x:Key="VictoryColor" Color="#0067C0"/>
-        <SolidColorBrush x:Key="DefeatColor" Color="#D13438"/>
+        <SolidColorBrush x:Key="TextPrimary" Color="#1F2937"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="#6B7280"/>
+        <SolidColorBrush x:Key="BorderBrush" Color="#E5E7EB"/>
+        <SolidColorBrush x:Key="VictoryBrush" Color="#2563EB"/>
+        <SolidColorBrush x:Key="DefeatBrush" Color="#DC2626"/>
 
-        <!-- =========================== -->
-        <!-- 2. 全局字体优化 -->
-        <!-- =========================== -->
+        <!-- 2. 全局字体 -->
         <Style TargetType="{x:Type Window}">
             <Setter Property="FontFamily" Value="Segoe UI Variable, Segoe UI, Microsoft YaHei UI"/>
             <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
         </Style>
 
-        <!-- ========================================================== -->
-        <!-- [原创] 英雄联盟主题动画：“破敌之锁” (Sylas: The Unshackled) -->
-        <!-- ========================================================== -->
-        <Style x:Key="SylasLoadingStyle" TargetType="Control">
-            <Setter Property="Foreground" Value="#0AC8B9"/>
-            <!-- 塞拉斯标志性的青蓝色 -->
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Control">
-                        <!-- 容器大小 120x120 -->
-                        <Grid Width="120" Height="120" RenderTransformOrigin="0.5,0.5">
-
-                            <!-- 1. 背景光晕 (爆发的魔法) -->
-                            <Ellipse Width="60" Height="60" Fill="{TemplateBinding Foreground}" Opacity="0.2" 
-                             RenderTransformOrigin="0.5,0.5">
-                                <Ellipse.Effect>
-                                    <BlurEffect Radius="20"/>
-                                </Ellipse.Effect>
-                                <Ellipse.RenderTransform>
-                                    <ScaleTransform ScaleX="1" ScaleY="1"/>
-                                </Ellipse.RenderTransform>
-                                <Ellipse.Triggers>
-                                    <EventTrigger RoutedEvent="Loaded">
-                                        <BeginStoryboard>
-                                            <Storyboard RepeatBehavior="Forever" AutoReverse="True">
-                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                                         From="0.8" To="1.5" Duration="0:0:0.6">
-                                                    <DoubleAnimation.EasingFunction>
-                                                        <BounceEase Bounciness="1" EasingMode="EaseOut"/>
-                                                    </DoubleAnimation.EasingFunction>
-                                                </DoubleAnimation>
-                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                                         From="0.8" To="1.5" Duration="0:0:0.6">
-                                                    <DoubleAnimation.EasingFunction>
-                                                        <BounceEase Bounciness="1" EasingMode="EaseOut"/>
-                                                    </DoubleAnimation.EasingFunction>
-                                                </DoubleAnimation>
-                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.1" To="0.4" Duration="0:0:0.6"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </EventTrigger>
-                                </Ellipse.Triggers>
-                            </Ellipse>
-
-                            <!-- 2. 核心：禁魔石核心 (菱形) -->
-                            <Rectangle Width="20" Height="20" Fill="#F0E6D2" Stroke="{TemplateBinding Foreground}" StrokeThickness="2"
-                               RenderTransformOrigin="0.5,0.5">
-                                <!-- F0E6D2 是德玛西亚禁魔石的灰白色 -->
-                                <Rectangle.Effect>
-                                    <DropShadowEffect Color="{Binding Color, Source={StaticResource SystemAccentColor}}" 
-                                              BlurRadius="10" ShadowDepth="0" Opacity="1"/>
-                                </Rectangle.Effect>
-                                <Rectangle.RenderTransform>
-                                    <TransformGroup>
-                                        <RotateTransform Angle="45"/>
-                                        <ScaleTransform ScaleX="1" ScaleY="1"/>
-                                    </TransformGroup>
-                                </Rectangle.RenderTransform>
-                                <Rectangle.Triggers>
-                                    <EventTrigger RoutedEvent="Loaded">
-                                        <BeginStoryboard>
-                                            <Storyboard RepeatBehavior="Forever">
-                                                <!-- 核心自转 -->
-                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(RotateTransform.Angle)"
-                                                         From="0" To="360" Duration="0:0:5"/>
-                                                <!-- 能量脉冲 -->
-                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(ScaleTransform.ScaleX)"
-                                                         From="1" To="0.8" Duration="0:0:0.3" AutoReverse="True" RepeatBehavior="Forever"/>
-                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(ScaleTransform.ScaleY)"
-                                                         From="1" To="0.8" Duration="0:0:0.3" AutoReverse="True" RepeatBehavior="Forever"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </EventTrigger>
-                                </Rectangle.Triggers>
-                            </Rectangle>
-
-                            <!-- 3. 内环：挥舞的锁链 (虚线模拟链节) -->
-                            <Ellipse Width="60" Height="60" Stroke="#5D5D5D" StrokeThickness="4" 
-                             StrokeDashArray="1, 0.8" StrokeDashCap="Round" RenderTransformOrigin="0.5,0.5">
-                                <!-- 5D5D5D 是沉重的铁链色 -->
-                                <Ellipse.RenderTransform>
-                                    <RotateTransform Angle="0"/>
-                                </Ellipse.RenderTransform>
-                                <Ellipse.Triggers>
-                                    <EventTrigger RoutedEvent="Loaded">
-                                        <BeginStoryboard>
-                                            <Storyboard RepeatBehavior="Forever">
-                                                <!-- 快速旋转，模拟挥舞速度 -->
-                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
-                                                         From="0" To="360" Duration="0:0:1.5"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </EventTrigger>
-                                </Ellipse.Triggers>
-                            </Ellipse>
-
-                            <!-- 4. 外环：巨大的镣铐 (两个金色半圆) -->
-                            <!-- 使用 Path 绘制两个 C 形 -->
-                            <Grid Width="100" Height="100" RenderTransformOrigin="0.5,0.5">
-                                <Grid.RenderTransform>
-                                    <RotateTransform Angle="0"/>
-                                </Grid.RenderTransform>
-                                <Grid.Triggers>
-                                    <EventTrigger RoutedEvent="Loaded">
-                                        <BeginStoryboard>
-                                            <Storyboard RepeatBehavior="Forever">
-                                                <!-- 带有物理惯性的旋转：甩出去 -> 减速 -> 拉回来 -->
-                                                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)">
-                                                    <SplineDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
-                                                    <SplineDoubleKeyFrame KeyTime="0:0:1.2" Value="200" KeySpline="0.2,0,0.8,1"/>
-                                                    <!-- 猛烈甩动 -->
-                                                    <SplineDoubleKeyFrame KeyTime="0:0:2.4" Value="360" KeySpline="0.5,0,0.5,1"/>
-                                                    <!-- 惯性结束 -->
-                                                </DoubleAnimationUsingKeyFrames>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </EventTrigger>
-                                </Grid.Triggers>
-
-                                <!-- 镣铐 1 (金色/黄铜色) -->
-                                <Path Data="M 10,50 A 40,40 0 0 1 90,50" Stroke="#C8AA6E" StrokeThickness="6" StrokeEndLineCap="Square">
-                                    <Path.Effect>
-                                        <DropShadowEffect Color="Black" ShadowDepth="1" BlurRadius="2" Opacity="0.5"/>
-                                    </Path.Effect>
-                                </Path>
-
-                                <!-- 镣铐 2 (金色/黄铜色) -->
-                                <Path Data="M 90,50 A 40,40 0 0 1 10,50" Stroke="#C8AA6E" StrokeThickness="6" StrokeEndLineCap="Square" RenderTransformOrigin="0.5,0.5">
-                                    <Path.RenderTransform>
-                                        <RotateTransform Angle="180"/>
-                                    </Path.RenderTransform>
-                                    <Path.Effect>
-                                        <DropShadowEffect Color="Black" ShadowDepth="1" BlurRadius="2" Opacity="0.5"/>
-                                    </Path.Effect>
-                                </Path>
-                            </Grid>
-
-                            <!-- 5. 魔法粒子 (点缀) -->
-                            <Ellipse Width="4" Height="4" Fill="{TemplateBinding Foreground}" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,5,0,0">
-                                <Ellipse.RenderTransform>
-                                    <TranslateTransform Y="0"/>
-                                </Ellipse.RenderTransform>
-                                <Ellipse.Triggers>
-                                    <EventTrigger RoutedEvent="Loaded">
-                                        <BeginStoryboard>
-                                            <Storyboard RepeatBehavior="Forever">
-                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
-                                                         From="0" To="110" Duration="0:0:1" AutoReverse="True">
-                                                    <DoubleAnimation.EasingFunction>
-                                                        <BounceEase Bounciness="2" EasingMode="EaseIn"/>
-                                                    </DoubleAnimation.EasingFunction>
-                                                </DoubleAnimation>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </EventTrigger>
-                                </Ellipse.Triggers>
-                            </Ellipse>
-
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- ========================================================== -->
-        <!-- 2. [优化] WinUI 3 精致滚动条 (自动隐藏/变细) -->
-        <!-- ========================================================== -->
-        <Style x:Key="CompactScrollBarThumb" TargetType="{x:Type Thumb}">
-            <Setter Property="OverridesDefaultStyle" Value="true"/>
-            <Setter Property="IsTabStop" Value="false"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Thumb}">
-                        <!-- 这里的 Margin 实现了“悬浮”效果，看起来比实际轨道细 -->
-                        <Border x:Name="rectangle" Background="#9E9E9E" CornerRadius="3" Margin="2,0,2,0"/>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="true">
-                                <Setter Property="Background" TargetName="rectangle" Value="#707070"/>
-                                <Setter Property="Margin" TargetName="rectangle" Value="1,0,1,0"/>
-                                <!-- 悬停时变粗 -->
-                            </Trigger>
-                            <Trigger Property="IsDragging" Value="true">
-                                <Setter Property="Background" TargetName="rectangle" Value="{StaticResource SystemAccentColor}"/>
-                                <!-- 拖拽时变色 -->
-                                <Setter Property="Margin" TargetName="rectangle" Value="0,0,0,0"/>
-                                <!-- 拖拽时最粗 -->
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="WinUICompactScrollBarStyle" TargetType="{x:Type ScrollBar}">
-            <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false"/>
-            <Setter Property="Stylus.IsFlicksEnabled" Value="false"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Width" Value="10"/>
-            <!-- 实际占位宽度，视觉宽度由 Thumb 控制 -->
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ScrollBar}">
-                        <Grid x:Name="Bg" SnapsToDevicePixels="true" Background="Transparent">
-                            <Track x:Name="PART_Track" IsDirectionReversed="true" IsEnabled="{TemplateBinding IsEnabled}">
-                                <Track.DecreaseRepeatButton>
-                                    <RepeatButton Command="{x:Static ScrollBar.LineUpCommand}" Opacity="0" Focusable="false"/>
-                                </Track.DecreaseRepeatButton>
-                                <Track.IncreaseRepeatButton>
-                                    <RepeatButton Command="{x:Static ScrollBar.LineDownCommand}" Opacity="0" Focusable="false"/>
-                                </Track.IncreaseRepeatButton>
-                                <Track.Thumb>
-                                    <Thumb Style="{StaticResource CompactScrollBarThumb}"/>
-                                </Track.Thumb>
-                            </Track>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- 覆盖默认 ScrollViewer 样式以应用新滚动条 -->
-        <Style TargetType="{x:Type ScrollViewer}">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ScrollViewer}">
-                        <Grid x:Name="Grid" Background="{TemplateBinding Background}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanContentScroll="{TemplateBinding CanContentScroll}" Grid.Column="0" Grid.Row="0" Margin="{TemplateBinding Padding}"/>
-                            <!-- 应用新的 WinUICompactScrollBarStyle -->
-                            <ScrollBar x:Name="PART_VerticalScrollBar" Grid.Column="1" Maximum="{TemplateBinding ScrollableHeight}" Minimum="0" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}" Style="{StaticResource WinUICompactScrollBarStyle}"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- =========================== -->
-        <!-- 5. 导航按钮样式 -->
-        <!-- =========================== -->
+        <!-- 3. [修复] 导航按钮样式 (NavRadioButtonStyle) -->
         <Style x:Key="NavRadioButtonStyle" TargetType="RadioButton">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
@@ -293,12 +45,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#E0E0E0"/>
+                                <Setter TargetName="bd" Property="Background" Value="#E5E7EB"/>
                                 <Setter TargetName="indicator" Property="Visibility" Value="Visible"/>
                                 <Setter Property="FontWeight" Value="SemiBold"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#EAEAEA"/>
+                                <Setter TargetName="bd" Property="Background" Value="#F3F4F6"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -306,64 +58,7 @@
             </Setter>
         </Style>
 
-        <!-- =========================== -->
-        <!-- 6. WinUI 风格按钮 -->
-        <!-- =========================== -->
-        <Style x:Key="WinUIButton" TargetType="Button">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="15,6"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#F9F9F9"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#F0F0F0"/>
-                                <Setter TargetName="bd" Property="BorderBrush" Value="#CCCCCC"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- 主要操作按钮 (蓝色) -->
-        <Style x:Key="AccentButtonStyle" TargetType="Button" BasedOn="{StaticResource WinUIButton}">
-            <Setter Property="Background" Value="{StaticResource SystemAccentColor}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" TextElement.Foreground="White"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Opacity" Value="0.9"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Opacity" Value="0.8"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- =========================== -->
-        <!-- 7. 选项卡样式 (WinUITabItem) -->
-        <!-- =========================== -->
+        <!-- 4. [修复] 选项卡样式 (WinUITabItem) -->
         <Style x:Key="WinUITabItem" TargetType="TabItem">
             <Setter Property="Template">
                 <Setter.Value>
@@ -399,30 +94,71 @@
             </Setter>
         </Style>
 
-        <!-- =========================== -->
-        <!-- 8. CheckBox 样式 -->
-        <!-- =========================== -->
-        <Style TargetType="CheckBox">
+        <!-- 5. 按钮样式 -->
+        <Style x:Key="WinUIButton" TargetType="Button">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,6"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="CheckBox">
-                        <StackPanel Orientation="Horizontal" Background="Transparent">
-                            <Border x:Name="box" Width="20" Height="20" CornerRadius="4" BorderThickness="1" BorderBrush="#8D8D8D" Background="White">
-                                <Path x:Name="check" Data="M2,10 L8,16 L18,4" Stroke="White" StrokeThickness="2" Visibility="Collapsed"/>
-                            </Border>
-                            <ContentPresenter Margin="10,0,0,0" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="box" Property="Background" Value="{StaticResource SystemAccentColor}"/>
-                                <Setter TargetName="box" Property="BorderThickness" Value="0"/>
-                                <Setter TargetName="check" Property="Visibility" Value="Visible"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="AccentButtonStyle" TargetType="Button" BasedOn="{StaticResource WinUIButton}">
+            <Setter Property="Background" Value="{StaticResource SystemAccentColor}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
 
+        <!-- 6. 图标路径 -->
+        <Geometry x:Key="IconSword">M14.5,2.5l-2-2c-0.5-0.5-1.5-0.5-2,0L0.5,10.5c-0.5,0.5-0.5,1.5,0,2l2,2c0.5,0.5,1.5,0.5,2,0l10-10C15,4,15,3,14.5,2.5z</Geometry>
+        <Geometry x:Key="IconShield">M8,0L0,3v6c0,5.5,3.8,10.7,8,12c4.2-1.3,8-6.5,8-12V3L8,0z</Geometry>
+        <Geometry x:Key="IconEye">M8,2C4,2,0.5,5,0.5,8S4,14,8,14s7.5-3,7.5-6S12,2,8,2z M8,12c-2.2,0-4-1.8-4-4s1.8-4,4-4s4,1.8,4,4S10.2,12,8,12z M8,6C6.9,6,6,6.9,6,8s0.9,2,2,2s2-0.9,2-2S9.1,6,8,6z</Geometry>
+        <Geometry x:Key="IconMinion">M8,0C3.6,0,0,3.6,0,8s3.6,8,8,8s8-3.6,8-8S12.4,0,8,0z</Geometry>
+        <Geometry x:Key="IconGold">M8,1C4.1,1,1,4.1,1,8s3.1,7,7,7s7-3.1,7-7S11.9,1,8,1z M8,11c-1.7,0-3-1.3-3-3s1.3-3,3-3s3,1.3,3,3S9.7,11,8,11z</Geometry>
+        <Geometry x:Key="IconNoBan">M 3,3 L 13,13 M 13,3 L 3,13</Geometry>
+
+        <!-- 7. 卡片样式 -->
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="2" Opacity="0.03"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 8. Ban位头像样式 -->
+        <Style x:Key="BanImageStyle" TargetType="Image">
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Opacity" Value="0.8"/>
+            <Setter Property="RenderOptions.BitmapScalingMode" Value="HighQuality"/>
+            <Setter Property="Clip">
+                <Setter.Value>
+                    <EllipseGeometry Center="14,14" RadiusX="14" RadiusY="14"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 9. 矢量图标通用样式 -->
+        <Style x:Key="IconPath" TargetType="Path">
+            <Setter Property="Width" Value="12"/>
+            <Setter Property="Height" Value="12"/>
+            <Setter Property="Stretch" Value="Uniform"/>
+            <Setter Property="Fill" Value="#9CA3AF"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,4,0"/>
+        </Style>
     </Application.Resources>
 </Application>

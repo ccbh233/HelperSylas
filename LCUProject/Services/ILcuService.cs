@@ -1,7 +1,7 @@
 ﻿using HelperSylas.Models;
 using System.Threading.Tasks;
 
-namespace HelperSylas
+namespace HelperSylas.Services
 {
     public interface ILcuService
     {
@@ -13,5 +13,6 @@ namespace HelperSylas
         Task AcceptMatchAsync(LcuAuthInfo authInfo); // 执行接受对局
         Task<MatchHistoryRoot?> GetMatchHistoryAsync(LcuAuthInfo auth, string? puuid, int begIndex, int endIndex);
         Task<SummonerInfo?> GetSummonerByNameAsync(LcuAuthInfo auth, string nameTag);
+        Task<MatchHistoryGame?> GetGameDetailAsync(LcuAuthInfo auth, long gameId);
     }
 }

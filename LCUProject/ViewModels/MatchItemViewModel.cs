@@ -2,6 +2,7 @@
 using HelperSylas.Models;
 using System;
 using System.Collections.Generic;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace HelperSylas.ViewModels
@@ -25,10 +26,14 @@ namespace HelperSylas.ViewModels
         public List<string> ItemUrls { get; } = new();
         public string TrinketUrl { get; } = "";
 
-        public MatchItemViewModel(MatchHistoryGame game, string ver)
+        public long GameId { get; } // 保存 GameId 用于查询详情
+        public ICommand OpenDetailCommand { get; } // 新增命令
+
+        public MatchItemViewModel(MatchHistoryGame game, string ver, Action<long> openDetailAction)
         {
             var p = game.Participants?[0];
             var stats = p?.Stats;
+            GameId = game.GameId ?? 0;
 
             // 基础信息
             int champId = p?.ChampionId ?? 0;
@@ -43,11 +48,22 @@ namespace HelperSylas.ViewModels
             // 核心数据 (KDA, CS, Gold)
             KdaText = $"{stats?.Kills}/{stats?.Deaths}/{stats?.Assists}";
 
-            // 补刀 (Minions + Jungle)
-            // 注意：stats 对象里通常有 totalMinionsKilled 和 neutralMinionsKilled，但这里为了演示简化
-            // 如果 Model 里没加这两个属性，可以用金币估算，或者尽量在 Model 里补全。
-            // 这里假设 CsText 已经赋值
-            CsText = "补刀 " + (stats?.Kills * 8 + stats?.Assists * 2); // 仅做演示，实际请在 Model 补全 totalMinionsKilled
+            // 补刀
+            int laneMinions = stats?.TotalMinionsKilled ?? 0;
+            int jungleMinions = stats?.NeutralMinionsKilled ?? 0;
+            int totalCs = laneMinions + jungleMinions;
+
+            // 计算分均补刀 (CSPM)
+            // GameDuration 单位是秒
+            double durationInMinutes = (game.GameDuration ?? 0) / 60.0;
+            string cspm = "";
+            if (durationInMinutes > 0)
+            {
+                double score = totalCs / durationInMinutes;
+                cspm = $"({score:F1}/s)";
+            }
+
+            CsText = $"补刀 {totalCs} {cspm}";
 
             // 经济 (12.5k)
             double gold = (stats?.GoldEarned ?? 0) / 1000.0;
@@ -72,11 +88,14 @@ namespace HelperSylas.ViewModels
                 ItemUrls.Add(url);
             }
             TrinketUrl = (stats?.Item6.HasValue == true && stats.Item6 > 0) ? $"{cdn}/{stats.Item6}.png" : "";
+
+            OpenDetailCommand = new RelayCommand(_ => openDetailAction?.Invoke(GameId));
         }
 
         private string GetQueueName(int id) => id switch 
         { 
             420 => "排位赛 单双", 
+            430 => "匹配模式", 
             450 => "极地大乱斗", 
             440 => "排位赛 灵活", 
             1700 => "斗魂竞技场", 

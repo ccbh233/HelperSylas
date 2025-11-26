@@ -1,6 +1,6 @@
-﻿using HelperSylas;
-using HelperSylas.Core;
+﻿using HelperSylas.Core;
 using HelperSylas.Models;
+using HelperSylas.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -42,6 +42,8 @@ namespace HelperSylas.ViewModels
         public ICommand CopyNameCommand { get; }
 
         public event Action<SummonerProfileViewModel>? RequestClose;
+
+        public event Action<long>? RequestOpenDetail;
 
         // 经验百分比 (0-100)
         public double XpProgress { get; set; }
@@ -126,7 +128,10 @@ namespace HelperSylas.ViewModels
                     if (root?.Wrapper?.Games != null)
                     {
                         foreach (var game in root.Wrapper.Games)
-                            MatchList.Add(new MatchItemViewModel(game, _gameVer));
+                        {
+                            // 传入回调函数
+                            MatchList.Add(new MatchItemViewModel(game, _gameVer, (gameId) => RequestOpenDetail?.Invoke(gameId)));
+                        }
                     }
                 });
             }

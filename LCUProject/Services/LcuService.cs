@@ -8,7 +8,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace HelperSylas
+namespace HelperSylas.Services
 {
     public class LcuService : ILcuService
     {
@@ -18,39 +18,45 @@ namespace HelperSylas
             string query = "SELECT CommandLine FROM Win32_Process WHERE Name = 'LeagueClientUx.exe'";
             string? commandLine = null;
 
-            using (var searcher = new ManagementObjectSearcher(query))
-            using (var results = searcher.Get())
+            try
             {
-                foreach (ManagementObject obj in results)
+                using (var searcher = new ManagementObjectSearcher(query))
+                using (var results = searcher.Get())
                 {
-                    commandLine = obj["CommandLine"]?.ToString();
-                    if (!string.IsNullOrEmpty(commandLine)) break;
+                    foreach (ManagementObject obj in results)
+                    {
+                        commandLine = obj["CommandLine"]?.ToString();
+                        if (!string.IsNullOrEmpty(commandLine)) break;
+                    }
                 }
+            }
+            catch
+            {
+                // WMI 查询偶尔会失败，抛出异常让外层处理（视为未连接）
+                throw new Exception("WMI Query Failed");
             }
 
             if (string.IsNullOrEmpty(commandLine))
             {
-                throw new Exception("未找到游戏进程，请确保游戏已启动并以管理员身份运行本工具。");
+                throw new Exception("Game Process Not Found");
             }
 
-            // 1. 匹配端口
+            // 使用更宽松的正则，防止因为某个参数缺失导致整个解析失败
             var portMatch = Regex.Match(commandLine, @"--app-port=([0-9]+)");
-            // 2. 匹配密码
             var tokenMatch = Regex.Match(commandLine, @"--remoting-auth-token=([\w-]+)");
-            // 3. 匹配 PID (可选，如果只是为了显示，匹配不到也没关系)
-            var pidMatch = Regex.Match(commandLine, @"--app-pid=([0-9]+)"); // 注意：有时参数可能是 --app-pid
+            var pidMatch = Regex.Match(commandLine, @"--app-pid=([0-9]+)");
 
-            // 检查必要参数
+            // 只有 Port 和 Token 是必须的
             if (!portMatch.Success || !tokenMatch.Success)
             {
-                throw new Exception("无法解析启动参数 (Port/Token)");
+                throw new Exception("Invalid Launch Parameters");
             }
 
             return new LcuAuthInfo
             {
                 Port = int.Parse(portMatch.Groups[1].Value),
                 Password = tokenMatch.Groups[1].Value,
-                // 如果匹配到了 PID 就赋值，没匹配到就给 0，防止崩溃
+                // PID 是可选的，如果没有匹配到给个 0，不要崩
                 Pid = pidMatch.Success ? int.Parse(pidMatch.Groups[1].Value) : 0,
                 Protocol = "https"
             };
@@ -186,6 +192,11 @@ namespace HelperSylas
             string endpoint = $"/lol-match-history/v1/products/lol/current-summoner/matches?begIndex=0&endIndex={count}";
             // 泛型改为 MatchHistoryRoot
             return await GetAsync<MatchHistoryRoot>(authInfo, endpoint);
+        }
+
+        public async Task<MatchHistoryGame?> GetGameDetailAsync(LcuAuthInfo auth, long gameId)
+        {
+            return await GetAsync<MatchHistoryGame>(auth, $"/lol-match-history/v1/games/{gameId}");
         }
     }
 }
