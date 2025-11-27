@@ -8,14 +8,14 @@
 <head>
     <meta charset='UTF-8'>
     <style>
-        body { margin: 0; padding: 0; background-color: #121212; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        body { margin: 0; padding: 0; background-color: #1A1D21; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         .scene { position: relative; width: 200px; height: 200px; display: flex; justify-content: center; align-items: center; animation: shake 2s infinite; }
-        .crown-group { position: absolute; width: 80px; height: 60px; filter: drop-shadow(0 0 5px #FFD700); }
-        .shard { fill: url(#goldGradient); stroke: #B8860B; stroke-width: 1; transform-origin: center bottom; }
+        .crown-group { position: absolute; width: 80px; height: 60px; filter: drop-shadow(0 0 5px #FDB931); }
+        .shard { fill: url(#goldGradient); stroke: #AA771C; stroke-width: 1; transform-origin: center bottom; }
         .shard-l { animation: shatterL 2s cubic-bezier(0.1, 0.8, 0.2, 1) infinite; }
         .shard-c { animation: shatterC 2s cubic-bezier(0.1, 0.8, 0.2, 1) infinite; }
         .shard-r { animation: shatterR 2s cubic-bezier(0.1, 0.8, 0.2, 1) infinite; }
-        .chain-ring { position: absolute; width: 160px; height: 160px; border: 8px dashed #555; border-radius: 50%; box-shadow: 0 0 15px #0AC8B9, inset 0 0 10px #0AC8B9; opacity: 0; animation: smashChain 2s ease-out infinite; }
+        .chain-ring { position: absolute; width: 160px; height: 160px; border: 8px dashed #555; border-radius: 50%; box-shadow: 0 0 15px #00F0FF, inset 0 0 10px #00F0FF; opacity: 0; animation: smashChain 2s ease-out infinite; }
         .shockwave { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: white; opacity: 0; animation: explode 2s linear infinite; }
         @keyframes smashChain { 0% { transform: scale(1.5) rotate(0deg); opacity: 0; } 40% { transform: scale(1.4) rotate(-20deg); opacity: 0.5; } 50% { transform: scale(0.2) rotate(45deg); opacity: 1; border-color: #fff; } 60% { transform: scale(1.2) rotate(90deg); opacity: 0; } 100% { opacity: 0; } }
         @keyframes shatterL { 0%, 48% { transform: translate(0,0) rotate(0); } 50% { transform: translate(-20px, -10px) rotate(-45deg); } 70% { transform: translate(-25px, -5px) rotate(-50deg); opacity: 0; } 71% { opacity: 0; transform: translate(0,0); } 100% { opacity: 1; } }

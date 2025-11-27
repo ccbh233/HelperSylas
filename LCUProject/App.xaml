@@ -1,143 +1,330 @@
 ﻿<Application x:Class="HelperSylas.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:HelperSylas"
+             xmlns:vm="clr-namespace:HelperSylas.ViewModels"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <!-- 1. 颜色资源 -->
-        <Color x:Key="AccentColorRaw">#0AC8B9</Color>
+        <!-- =========================== -->
+        <!-- 1. 全局转换器 (保持不变) -->
+        <!-- =========================== -->
+        <local:IndexToVisibilityConverter x:Key="IndexToVisibility"/>
+        <local:RankToColorConverter x:Key="RankColor"/>
+        <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <!-- =========================== -->
+        <!-- 2. 全局色板 (电竞深色主题) -->
+        <!-- =========================== -->
+        <!-- 核心强调色 (青色) -->
+        <Color x:Key="AccentColorRaw">#00F0FF</Color>
         <SolidColorBrush x:Key="SystemAccentColor" Color="{StaticResource AccentColorRaw}"/>
-        <SolidColorBrush x:Key="AppBackground" Color="#F0F3F9"/>
-        <SolidColorBrush x:Key="CardBackground" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="TextPrimary" Color="#1F2937"/>
-        <SolidColorBrush x:Key="TextSecondary" Color="#6B7280"/>
-        <SolidColorBrush x:Key="BorderBrush" Color="#E5E7EB"/>
-        <SolidColorBrush x:Key="VictoryBrush" Color="#2563EB"/>
-        <SolidColorBrush x:Key="DefeatBrush" Color="#DC2626"/>
 
-        <!-- 2. 全局字体 -->
+        <!-- 背景色 -->
+        <SolidColorBrush x:Key="AppBackground" Color="#1A1D21"/>
+        <!-- 主背景 -->
+        <SolidColorBrush x:Key="CardBackground" Color="#25282D"/>
+        <!-- 卡片背景 -->
+        <SolidColorBrush x:Key="NavBackground" Color="#16181B"/>
+        <!-- 侧边栏背景 -->
+
+        <!-- 文字颜色 -->
+        <SolidColorBrush x:Key="TextPrimary" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="#8B9BB4"/>
+        <!-- 蓝灰色 -->
+        <SolidColorBrush x:Key="TextDim" Color="#555E6D"/>
+
+        <!-- 边框与状态 -->
+        <SolidColorBrush x:Key="BorderBrush" Color="#383D45"/>
+        <SolidColorBrush x:Key="InputBackground" Color="#131518"/>
+
+        <SolidColorBrush x:Key="VictoryBrush" Color="#00F0FF"/>
+        <!-- 胜利改为青色 -->
+        <SolidColorBrush x:Key="DefeatBrush" Color="#FF4455"/>
+        <!-- 失败改为红色 -->
+
+        <!-- =========================== -->
+        <!-- 3. 基础样式 -->
+        <!-- =========================== -->
         <Style TargetType="{x:Type Window}">
-            <Setter Property="FontFamily" Value="Segoe UI Variable, Segoe UI, Microsoft YaHei UI"/>
+            <Setter Property="FontFamily" Value="Microsoft YaHei UI, Segoe UI"/>
             <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
-        </Style>
-
-        <!-- 3. [修复] 导航按钮样式 (NavRadioButtonStyle) -->
-        <Style x:Key="NavRadioButtonStyle" TargetType="RadioButton">
-            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
+            <Setter Property="Background" Value="{StaticResource AppBackground}"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Setter Property="FontSize" Value="15"/>
-            <Setter Property="Padding" Value="16,12"/>
-            <Setter Property="Margin" Value="0,2"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Rectangle x:Name="indicator" Grid.Column="0" Width="4" Height="16" RadiusX="2" RadiusY="2"
-                                           Fill="{StaticResource SystemAccentColor}" HorizontalAlignment="Left" 
-                                           Visibility="Collapsed" Margin="-12,0,0,0"/>
-                                <ContentPresenter Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                            </Grid>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#E5E7EB"/>
-                                <Setter TargetName="indicator" Property="Visibility" Value="Visible"/>
-                                <Setter Property="FontWeight" Value="SemiBold"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#F3F4F6"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
         </Style>
 
-        <!-- 4. [修复] 选项卡样式 (WinUITabItem) -->
-        <Style x:Key="WinUITabItem" TargetType="TabItem">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TabItem">
-                        <Grid Margin="0,0,20,0" Cursor="Hand" Background="Transparent">
-                            <ContentPresenter x:Name="Content" ContentSource="Header" HorizontalAlignment="Center" Margin="5,10"/>
-                            <Rectangle x:Name="Underline" Height="3" VerticalAlignment="Bottom" Fill="{StaticResource SystemAccentColor}" 
-                                       RadiusX="1.5" RadiusY="1.5" Opacity="0" Width="20"/>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Content" Property="TextElement.Foreground" Value="{StaticResource TextPrimary}"/>
-                                <Setter TargetName="Content" Property="TextElement.FontWeight" Value="SemiBold"/>
-                                <Trigger.EnterActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="Underline" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2"/>
-                                            <DoubleAnimation Storyboard.TargetName="Underline" Storyboard.TargetProperty="Width" To="40" Duration="0:0:0.2"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </Trigger.EnterActions>
-                                <Trigger.ExitActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="Underline" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </Trigger.ExitActions>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- 5. 按钮样式 -->
-        <Style x:Key="WinUIButton" TargetType="Button">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="12,6"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="AccentButtonStyle" TargetType="Button" BasedOn="{StaticResource WinUIButton}">
-            <Setter Property="Background" Value="{StaticResource SystemAccentColor}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-        </Style>
-
-        <!-- 6. 图标路径 -->
+        <!-- =========================== -->
+        <!-- 4. 图标路径 (保持不变) -->
+        <!-- =========================== -->
+        <Geometry x:Key="IconHome">M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z</Geometry>
+        <Geometry x:Key="IconSearch">M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z</Geometry>
+        <Geometry x:Key="IconTools">M22.7,19L13.6,9.9C14.5,7.6 14,4.9 12.1,3C10.1,1.1 7.1,0.9 5,2.3L9,6.3L6.3,9L2.3,5C0.9,7.1 1.1,10.1 3,12.1C4.9,14 7.6,14.5 9.9,13.6L19,22.7C19.3,23 19.7,23 20,22.7L22.7,20C23,19.7 23,19.3 22.7,19Z</Geometry>
         <Geometry x:Key="IconSword">M14.5,2.5l-2-2c-0.5-0.5-1.5-0.5-2,0L0.5,10.5c-0.5,0.5-0.5,1.5,0,2l2,2c0.5,0.5,1.5,0.5,2,0l10-10C15,4,15,3,14.5,2.5z</Geometry>
         <Geometry x:Key="IconShield">M8,0L0,3v6c0,5.5,3.8,10.7,8,12c4.2-1.3,8-6.5,8-12V3L8,0z</Geometry>
         <Geometry x:Key="IconEye">M8,2C4,2,0.5,5,0.5,8S4,14,8,14s7.5-3,7.5-6S12,2,8,2z M8,12c-2.2,0-4-1.8-4-4s1.8-4,4-4s4,1.8,4,4S10.2,12,8,12z M8,6C6.9,6,6,6.9,6,8s0.9,2,2,2s2-0.9,2-2S9.1,6,8,6z</Geometry>
         <Geometry x:Key="IconMinion">M8,0C3.6,0,0,3.6,0,8s3.6,8,8,8s8-3.6,8-8S12.4,0,8,0z</Geometry>
         <Geometry x:Key="IconGold">M8,1C4.1,1,1,4.1,1,8s3.1,7,7,7s7-3.1,7-7S11.9,1,8,1z M8,11c-1.7,0-3-1.3-3-3s1.3-3,3-3s3,1.3,3,3S9.7,11,8,11z</Geometry>
+        <Geometry x:Key="IconTrend">M16,6l-6,6l-3-3L2.3,13.7l1.4,1.4l3.3-3.3l3,3l7.4-7.4L16,6z</Geometry>
         <Geometry x:Key="IconNoBan">M 3,3 L 13,13 M 13,3 L 3,13</Geometry>
+        <Geometry x:Key="IconClose">M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z</Geometry>
 
-        <!-- 7. 卡片样式 -->
-        <Style x:Key="CardBorder" TargetType="Border">
+        <!-- =========================== -->
+        <!-- 5. 控件样式重写 -->
+        <!-- =========================== -->
+
+        <!-- 通用图标 Path 样式 -->
+        <Style x:Key="IconPath" TargetType="Path">
+            <Setter Property="Width" Value="12"/>
+            <Setter Property="Height" Value="12"/>
+            <Setter Property="Stretch" Value="Uniform"/>
+            <Setter Property="Fill" Value="{StaticResource TextSecondary}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,4,0"/>
+        </Style>
+
+        <!-- 战绩卡片样式 (深色悬浮) -->
+        <Style x:Key="InteractiveCardStyle" TargetType="Border">
             <Setter Property="Background" Value="{StaticResource CardBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Effect">
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="RenderTransform">
                 <Setter.Value>
-                    <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="2" Opacity="0.03"/>
+                    <TranslateTransform Y="0"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#2C3036"/>
+                    <Setter Property="BorderBrush" Value="{StaticResource SystemAccentColor}"/>
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" To="-2" Duration="0:0:0.1"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" To="0" Duration="0:0:0.1"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 侧边栏导航按钮 (带发光条) -->
+        <Style x:Key="NavRadioButtonStyle" TargetType="RadioButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="15,12"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="0,0,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <!-- 左侧发光条 -->
+                                <Rectangle x:Name="indicator" Grid.Column="0" Width="3" Height="20" RadiusX="1.5" RadiusY="1.5" Fill="{StaticResource SystemAccentColor}" HorizontalAlignment="Left" Visibility="Collapsed" Margin="0,0,15,0">
+                                    <Rectangle.Effect>
+                                        <DropShadowEffect Color="{StaticResource AccentColorRaw}" BlurRadius="8" ShadowDepth="0" Opacity="0.8"/>
+                                    </Rectangle.Effect>
+                                </Rectangle>
+                                <!-- 图标 -->
+                                <Path x:Name="icon" Data="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" Fill="{TemplateBinding Foreground}" Width="18" Height="18" Stretch="Uniform" Margin="20,0,15,0"/>
+                                <!-- 文字 -->
+                                <ContentPresenter Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#1AFFFFFF"/>
+                                <!-- 半透明高亮 -->
+                                <Setter TargetName="indicator" Property="Visibility" Value="Visible"/>
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+                                <Setter TargetName="icon" Property="Fill" Value="{StaticResource SystemAccentColor}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#0DFFFFFF"/>
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
 
-        <!-- 8. Ban位头像样式 -->
+        <!-- 通用按钮 (深色/描边) -->
+        <Style x:Key="WinUIButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="20,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#333840"/>
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#1A1D21"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 强调按钮 (青色/发光) -->
+        <Style x:Key="AccentButtonStyle" TargetType="Button" BasedOn="{StaticResource WinUIButton}">
+            <Setter Property="Background" Value="{StaticResource SystemAccentColor}"/>
+            <Setter Property="Foreground" Value="#000000"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="{StaticResource AccentColorRaw}" BlurRadius="10" ShadowDepth="0" Opacity="0.4"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 滚动条 (深色) -->
+        <Style x:Key="ScrollBarThumb" TargetType="{x:Type Thumb}">
+            <Setter Property="OverridesDefaultStyle" Value="true"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Border Background="#4A505C" CornerRadius="3"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="WinUIScrollBarStyle" TargetType="{x:Type ScrollBar}">
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollBar}">
+                        <Grid>
+                            <Track x:Name="PART_Track" IsDirectionReversed="true">
+                                <Track.Thumb>
+                                    <Thumb Style="{StaticResource ScrollBarThumb}" Margin="2"/>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type ScrollViewer}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                        <Grid Background="{TemplateBinding Background}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanContentScroll="{TemplateBinding CanContentScroll}" Grid.Column="0"/>
+                            <ScrollBar x:Name="PART_VerticalScrollBar" Grid.Column="1" Maximum="{TemplateBinding ScrollableHeight}" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}" Style="{StaticResource WinUIScrollBarStyle}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- TabItem (胶囊风格) -->
+        <Style x:Key="WinUITabItem" TargetType="TabItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Bd" Margin="0,0,10,0" Cursor="Hand" Background="Transparent" CornerRadius="4" BorderBrush="Transparent" BorderThickness="1" Padding="12,6">
+                            <ContentPresenter x:Name="Content" ContentSource="Header" HorizontalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource SystemAccentColor}"/>
+                                <Setter TargetName="Content" Property="TextElement.Foreground" Value="Black"/>
+                                <Setter TargetName="Content" Property="TextElement.FontWeight" Value="Bold"/>
+                                <Setter TargetName="Bd" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect Color="{StaticResource AccentColorRaw}" BlurRadius="8" ShadowDepth="0" Opacity="0.5"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="False">
+                                <Setter TargetName="Content" Property="TextElement.Foreground" Value="{StaticResource TextSecondary}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Content" Property="TextElement.Foreground" Value="{StaticResource TextPrimary}"/>
+                                <Setter TargetName="Bd" Property="Background" Value="#1AFFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- CheckBox (青色方块) -->
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" Background="Transparent">
+                            <Border x:Name="box" Width="18" Height="18" CornerRadius="4" BorderThickness="1" BorderBrush="#555E6D" Background="{StaticResource InputBackground}">
+                                <Path x:Name="check" Data="M3,9 L7,13 L15,3" Stroke="Black" StrokeThickness="2" Visibility="Collapsed" Margin="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                            </Border>
+                            <ContentPresenter Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="check" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="box" Property="BorderBrush" Value="{StaticResource SystemAccentColor}"/>
+                                <Setter TargetName="box" Property="Background" Value="{StaticResource SystemAccentColor}"/>
+                                <Setter TargetName="box" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect Color="{StaticResource AccentColorRaw}" BlurRadius="5" ShadowDepth="0" Opacity="0.6"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Ban位头像 -->
         <Style x:Key="BanImageStyle" TargetType="Image">
             <Setter Property="Width" Value="28"/>
             <Setter Property="Height" Value="28"/>
@@ -151,14 +338,238 @@
             </Setter>
         </Style>
 
-        <!-- 9. 矢量图标通用样式 -->
-        <Style x:Key="IconPath" TargetType="Path">
-            <Setter Property="Width" Value="12"/>
-            <Setter Property="Height" Value="12"/>
-            <Setter Property="Stretch" Value="Uniform"/>
-            <Setter Property="Fill" Value="#9CA3AF"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,0,4,0"/>
-        </Style>
+        <!-- 战绩详情模板 -->
+        <DataTemplate x:Key="SummonerTemplate" DataType="{x:Type vm:SummonerProfileViewModel}">
+            <Grid Margin="0,0,10,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- 顶部信息卡片 -->
+                <Border Grid.Row="0" Background="{StaticResource CardBackground}" CornerRadius="8" Padding="25" Margin="0,0,0,20">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid Width="90" Height="90">
+                            <Ellipse Stroke="#383D45" StrokeThickness="3"/>
+                            <Image Source="{Binding IconUrl}" Margin="6">
+                                <Image.Clip>
+                                    <EllipseGeometry Center="39,39" RadiusX="39" RadiusY="39"/>
+                                </Image.Clip>
+                            </Image>
+                            <Border VerticalAlignment="Bottom" HorizontalAlignment="Center" Background="{StaticResource SystemAccentColor}" CornerRadius="10" Padding="8,2" Margin="0,0,0,-8">
+                                <TextBlock Text="{Binding LevelText}" Foreground="Black" FontSize="11" FontWeight="Bold"/>
+                            </Border>
+                        </Grid>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="25,0,0,0">
+                            <TextBlock Text="{Binding DisplayName}" FontSize="26" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" Cursor="Hand" ToolTip="点击复制">
+                                <TextBlock.InputBindings>
+                                    <MouseBinding MouseAction="LeftClick" Command="{Binding CopyNameCommand}"/>
+                                </TextBlock.InputBindings>
+                            </TextBlock>
+                            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                <Border Background="#333840" CornerRadius="4" Padding="8,4">
+                                    <TextBlock Text="{Binding RankText}" Foreground="{Binding RankText, Converter={StaticResource RankColor}}" FontWeight="Bold" FontSize="12"/>
+                                </Border>
+                                <TextBlock Text="{Binding RankLp}" Foreground="{StaticResource TextSecondary}" Margin="10,4,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- 战绩列表 -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="0,0,12,0">
+                        <Grid Margin="10,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="6"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="1.5*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="110"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="1" Text="结果" FontSize="12" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="KDA" FontSize="12" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="4" Text="经济/补刀" FontSize="12" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="5" Text="出装" FontSize="12" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="6" Text="时间" FontSize="12" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Right"/>
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding MatchList}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource InteractiveCardStyle}" Height="80" Cursor="Hand">
+                                        <Border.InputBindings>
+                                            <MouseBinding MouseAction="LeftClick" Command="{Binding OpenDetailCommand}"/>
+                                        </Border.InputBindings>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="6"/>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="70"/>
+                                                <ColumnDefinition Width="1.5*"/>
+                                                <ColumnDefinition Width="1*"/>
+                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="110"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Rectangle Grid.Column="0" Fill="{Binding ResultBarColor}" RadiusX="4" RadiusY="4" Margin="0,0,2,0"/>
+
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                <TextBlock Text="{Binding ResultText}" FontWeight="Bold" Foreground="{Binding ResultColor}" FontSize="14"/>
+                                                <TextBlock Text="{Binding ModeText}" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,4,0,0"/>
+                                            </StackPanel>
+
+                                            <Image Grid.Column="2" Source="{Binding ChampionIconUrl}" Width="44" Height="44" VerticalAlignment="Center">
+                                                <Image.Clip>
+                                                    <EllipseGeometry Center="22,22" RadiusX="22" RadiusY="22"/>
+                                                </Image.Clip>
+                                            </Image>
+
+                                            <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="10,0,0,0">
+                                                <TextBlock Text="{Binding KdaText}" FontWeight="Bold" FontSize="15" Foreground="{StaticResource TextPrimary}"/>
+                                                <TextBlock Text="K / D / A" FontSize="10" Foreground="{StaticResource TextDim}" Margin="0,2,0,0"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="4" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding CsText}" Foreground="{StaticResource TextSecondary}" FontSize="12"/>
+                                                <TextBlock Text="{Binding GoldText}" Foreground="{StaticResource SystemAccentColor}" FontSize="12" Margin="0,2,0,0" FontWeight="SemiBold"/>
+                                            </StackPanel>
+
+                                            <ItemsControl Grid.Column="5" ItemsSource="{Binding ItemUrls}" VerticalAlignment="Center">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel Orientation="Horizontal"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Width="30" Height="30" CornerRadius="4" Margin="0,0,4,0" Background="#333840" BorderBrush="#444" BorderThickness="1">
+                                                            <Image Source="{Binding}"/>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                            <StackPanel Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0">
+                                                <TextBlock Text="{Binding DateText}" Foreground="{StaticResource TextSecondary}" FontSize="12"/>
+                                                <TextBlock Text="{Binding DurationText}" Foreground="{StaticResource TextDim}" FontSize="11" HorizontalAlignment="Right" Opacity="0.8"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="PlayerRowTemplate">
+            <Border Background="{StaticResource CardBackground}" Margin="0,0,0,1" Padding="12,10" BorderBrush="#333840" BorderThickness="0,0,0,1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="60"/>
+                        <ColumnDefinition Width="1.5*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1.8*"/>
+                        <ColumnDefinition Width="1.2*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="50"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Width="42" Height="42" HorizontalAlignment="Left">
+                        <Image Source="{Binding ChampionIcon}">
+                            <Image.Clip>
+                                <EllipseGeometry Center="21,21" RadiusX="21" RadiusY="21"/>
+                            </Image.Clip>
+                        </Image>
+                        <Border Background="#16181B" VerticalAlignment="Bottom" HorizontalAlignment="Right" CornerRadius="4" Padding="3,0" Margin="-2,-2">
+                            <TextBlock Text="{Binding LevelText}" Foreground="White" FontSize="10" FontWeight="Bold"/>
+                        </Border>
+                    </Grid>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <Image Source="{Binding Spell1Icon}" Width="18" Height="18" Margin="0,0,4,0"/>
+                            <Image Source="{Binding Spell2Icon}" Width="18" Height="18"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="{Binding RuneMainIcon}" Width="18" Height="18" Margin="0,0,4,0"/>
+                            <Image Source="{Binding RuneSubIcon}" Width="18" Height="18" Opacity="0.7"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <TextBlock Grid.Column="2" Text="{Binding SummonerName}" VerticalAlignment="Center" Foreground="{StaticResource TextPrimary}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding SummonerName}"/>
+                    <StackPanel Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding KdaText}" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" FontSize="14" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding KdaRatio, StringFormat='({0})'}" FontSize="11" Foreground="{Binding KdaColor}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="15,0">
+                        <Grid Height="10" Margin="0,0,0,6" ToolTip="伤害">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Path Data="{StaticResource IconSword}" Fill="#FF4455" Stretch="Uniform" Width="10" Height="10"/>
+                            <Grid Grid.Column="1" Margin="5,0,0,0">
+                                <ProgressBar Value="{Binding DamagePercent}" Maximum="100" Foreground="#FF4455" Background="#333840" BorderThickness="0" Height="6" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding DamageVal}" FontSize="10" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Right" Margin="0,-12,0,0"/>
+                            </Grid>
+                        </Grid>
+                        <Grid Height="10" ToolTip="承伤">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Path Data="{StaticResource IconShield}" Fill="#8B9BB4" Stretch="Uniform" Width="10" Height="10"/>
+                            <Grid Grid.Column="1" Margin="5,0,0,0">
+                                <ProgressBar Value="{Binding TakenPercent}" Maximum="100" Foreground="#8B9BB4" Background="#333840" BorderThickness="0" Height="6" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding TakenVal}" FontSize="10" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Right" Margin="0,-12,0,0"/>
+                            </Grid>
+                        </Grid>
+                    </StackPanel>
+                    <Grid Grid.Column="5" VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="1.2*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" HorizontalAlignment="Center" ToolTip="补刀">
+                            <Path Data="{StaticResource IconMinion}" Fill="{StaticResource TextSecondary}" Stretch="Uniform" Width="10" Height="10" HorizontalAlignment="Center" Margin="0,0,0,2"/>
+                            <TextBlock Text="{Binding CsText}" FontSize="11" Foreground="{StaticResource TextSecondary}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Center" ToolTip="伤害转化率">
+                            <Path Data="{StaticResource IconTrend}" Fill="{StaticResource SystemAccentColor}" Stretch="Uniform" Width="10" Height="10" HorizontalAlignment="Center" Margin="0,0,0,2"/>
+                            <TextBlock Text="{Binding DmgConversionText}" FontSize="11" FontWeight="Bold" Foreground="{StaticResource SystemAccentColor}" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" HorizontalAlignment="Center" ToolTip="视野">
+                            <Path Data="{StaticResource IconEye}" Fill="{StaticResource TextSecondary}" Stretch="Uniform" Width="10" Height="10" HorizontalAlignment="Center" Margin="0,0,0,2"/>
+                            <TextBlock Text="{Binding VisionText}" FontSize="11" Foreground="{StaticResource TextSecondary}"/>
+                        </StackPanel>
+                    </Grid>
+                    <ItemsControl Grid.Column="6" ItemsSource="{Binding Items}" VerticalAlignment="Center">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Width="28" Height="28" CornerRadius="4" Margin="1" Background="#333840" BorderBrush="#444" BorderThickness="1">
+                                    <Image Source="{Binding}"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Border Grid.Column="7" Background="#333840" CornerRadius="6" Width="36" Height="22" ToolTip="综合评分">
+                        <TextBlock Text="{Binding ScoreText}" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Foreground="{Binding ScoreColor}" FontSize="12"/>
+                    </Border>
+                </Grid>
+            </Border>
+        </DataTemplate>
     </Application.Resources>
 </Application>

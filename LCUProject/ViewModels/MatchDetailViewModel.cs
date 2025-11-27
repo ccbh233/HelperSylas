@@ -1,6 +1,5 @@
 ﻿using HelperSylas.Models;
 using HelperSylas.Core;
-using HelperSylas.Models;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -19,6 +18,10 @@ namespace HelperSylas.ViewModels
         public string Team100Obj { get; set; } = "";
         public string Team200Obj { get; set; } = "";
 
+        public string GameModeText { get; set; } // "单双排"
+        public string GameDurationText { get; set; } // "25分30秒"
+        public string GameDateText { get; set; } // "2023-10-01"
+
         public MatchDetailViewModel(MatchHistoryGame? game, string ver)
         {
             if (game != null)
@@ -30,6 +33,14 @@ namespace HelperSylas.ViewModels
         private void LoadData(MatchHistoryGame game, string ver)
         {
             if (game.Participants == null) return;
+
+            GameModeText = MatchItemViewModel.GetQueueName(game.QueueId ?? 0);
+
+            int dur = game.GameDuration ?? 0;
+            GameDurationText = $"{dur / 60}分{dur % 60}秒";
+
+            long creation = game.GameCreation ?? 0;
+            GameDateText = DateTimeOffset.FromUnixTimeMilliseconds(creation).ToLocalTime().ToString("yyyy-MM-dd HH:mm");
 
             // 1. 计算最大值 (用于进度条)
             int maxDmg = game.Participants.Max(p => p.Stats?.TotalDamageDealtToChampions ?? 0);

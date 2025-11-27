@@ -3,144 +3,26 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:HelperSylas" 
         mc:Ignorable="d"
         Title="对局详情" Height="750" Width="1180"
-        WindowStartupLocation="CenterOwner" Background="#F3F5F9">
+        WindowStartupLocation="CenterOwner" Background="#F3F5F9"
+        FontFamily="Segoe UI Variable, Segoe UI">
 
+    <!-- 资源已全部移至 App.xaml，此处留空或删除 -->
     <Window.Resources>
-        <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-
-        <!-- 行模板 -->
-        <DataTemplate x:Key="PlayerRowTemplate">
-            <Border Background="White" Margin="0,0,0,2" Padding="10,8" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="50"/>
-                        <ColumnDefinition Width="50"/>
-                        <ColumnDefinition Width="140"/>
-                        <ColumnDefinition Width="100"/>
-                        <ColumnDefinition Width="180"/>
-                        <ColumnDefinition Width="160"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="50"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- 1. 英雄 -->
-                    <Grid Width="40" Height="40" HorizontalAlignment="Left">
-                        <Image Source="{Binding ChampionIcon}">
-                            <Image.Clip>
-                                <EllipseGeometry Center="20,20" RadiusX="20" RadiusY="20"/>
-                            </Image.Clip>
-                        </Image>
-                        <Border Background="#1F2937" VerticalAlignment="Bottom" HorizontalAlignment="Right" CornerRadius="4" Padding="3,0" Margin="-2,-2">
-                            <TextBlock Text="{Binding LevelText}" Foreground="White" FontSize="10" FontWeight="Bold"/>
-                        </Border>
-                    </Grid>
-
-                    <!-- 2. 技能符文 -->
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
-                            <Image Source="{Binding Spell1Icon}" Width="16" Height="16" Margin="0,0,2,0"/>
-                            <Image Source="{Binding Spell2Icon}" Width="16" Height="16"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="{Binding RuneMainIcon}" Width="16" Height="16" Margin="0,0,2,0"/>
-                            <Image Source="{Binding RuneSubIcon}" Width="16" Height="16" Opacity="0.7"/>
-                        </StackPanel>
-                    </StackPanel>
-
-                    <!-- 3. 名字 -->
-                    <TextBlock Grid.Column="2" Text="{Binding SummonerName}" VerticalAlignment="Center" Foreground="#111827" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding SummonerName}"/>
-
-                    <!-- 4. KDA -->
-                    <StackPanel Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <TextBlock Text="{Binding KdaText}" FontWeight="Bold" Foreground="#374151" FontSize="14" HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding KdaRatio, StringFormat='({0})'}" FontSize="11" Foreground="{Binding KdaColor}" HorizontalAlignment="Center"/>
-                    </StackPanel>
-
-                    <!-- 5. 伤害/承伤 -->
-                    <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="10,0">
-                        <Grid Height="14" ToolTip="对英雄伤害">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Path Data="{StaticResource IconSword}" Style="{StaticResource IconPath}" Fill="#EF4444"/>
-                            <Grid Grid.Column="1">
-                                <ProgressBar Value="{Binding DamagePercent}" Maximum="100" Foreground="#EF4444" Background="#F3F4F6" BorderThickness="0" Height="6" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding DamageVal}" FontSize="10" Foreground="#374151" HorizontalAlignment="Right" Margin="0,-8,0,0"/>
-                            </Grid>
-                        </Grid>
-                        <Grid Height="14" Margin="0,4,0,0" ToolTip="承受伤害">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Path Data="{StaticResource IconShield}" Style="{StaticResource IconPath}" Fill="#9CA3AF"/>
-                            <Grid Grid.Column="1">
-                                <ProgressBar Value="{Binding TakenPercent}" Maximum="100" Foreground="#9CA3AF" Background="#F3F4F6" BorderThickness="0" Height="6" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding TakenVal}" FontSize="10" Foreground="#6B7280" HorizontalAlignment="Right" Margin="0,-8,0,0"/>
-                            </Grid>
-                        </Grid>
-                    </StackPanel>
-
-                    <!-- 6. 综合数据 -->
-                    <Grid Grid.Column="5" VerticalAlignment="Center">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0" HorizontalAlignment="Center" ToolTip="补刀">
-                            <Path Data="{StaticResource IconMinion}" Style="{StaticResource IconPath}" HorizontalAlignment="Center" Margin="0,0,0,2"/>
-                            <TextBlock Text="{Binding CsText}" FontSize="11" Foreground="#374151"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="1" HorizontalAlignment="Center" ToolTip="金币">
-                            <Path Data="{StaticResource IconGold}" Style="{StaticResource IconPath}" HorizontalAlignment="Center" Fill="#F59E0B" Margin="0,0,0,2"/>
-                            <TextBlock Text="{Binding GoldText}" FontSize="11" Foreground="#374151"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2" HorizontalAlignment="Center" ToolTip="视野">
-                            <Path Data="{StaticResource IconEye}" Style="{StaticResource IconPath}" HorizontalAlignment="Center" Margin="0,0,0,2"/>
-                            <TextBlock Text="{Binding VisionText}" FontSize="11" Foreground="#374151"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- 7. 装备 -->
-                    <ItemsControl Grid.Column="6" ItemsSource="{Binding Items}" VerticalAlignment="Center">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Width="26" Height="26" CornerRadius="4" Margin="1" Background="#F3F4F6" BorderBrush="#E5E7EB" BorderThickness="1">
-                                    <Image Source="{Binding}"/>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <!-- 8. 评分 -->
-                    <Border Grid.Column="7" Background="#F3F4F6" CornerRadius="6" Width="36" Height="22">
-                        <TextBlock Text="{Binding ScoreText}" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Foreground="{Binding ScoreColor}" FontSize="12"/>
-                    </Border>
-                </Grid>
-            </Border>
-        </DataTemplate>
     </Window.Resources>
 
-    <Grid Margin="20">
+    <!-- 窗口主体 -->
+    <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- [修复] 顶部信息栏：去掉了冲突的 Effect 属性 -->
-        <Border Grid.Row="0" Background="White" Padding="20" CornerRadius="8" Margin="0,0,0,15">
+        <!-- 顶部信息栏 -->
+        <Border Grid.Row="0" Background="White" Padding="24" CornerRadius="12" Margin="0,0,0,20">
             <Border.Effect>
-                <DropShadowEffect Color="#000" BlurRadius="10" ShadowDepth="2" Opacity="0.03"/>
+                <DropShadowEffect Color="Black" BlurRadius="15" ShadowDepth="3" Opacity="0.03"/>
             </Border.Effect>
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -149,15 +31,25 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
+                <!-- [新增] 顶部元数据 (时间/模式) -->
+                <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="0,-10,0,0">
+                    <TextBlock Text="{Binding GameModeText}" FontSize="12" FontWeight="Bold" Foreground="#9CA3AF" HorizontalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,2,0,0">
+                        <TextBlock Text="{Binding GameDateText}" FontSize="11" Foreground="#D1D5DB" Margin="0,0,5,0"/>
+                        <TextBlock Text="|" FontSize="11" Foreground="#E5E7EB"/>
+                        <TextBlock Text="{Binding GameDurationText}" FontSize="11" Foreground="#D1D5DB" Margin="5,0,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+
                 <!-- 蓝队 -->
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <TextBlock Text="{Binding Team100Result}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource VictoryBrush}"/>
+                        <TextBlock Text="{Binding Team100Result}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource VictoryBrush}"/>
                         <TextBlock Text="蓝队" Margin="10,0,0,0" VerticalAlignment="Bottom" Foreground="#6B7280"/>
                     </StackPanel>
                     <TextBlock Text="{Binding Team100Obj}" Foreground="#6B7280" FontSize="12"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <TextBlock Text="BAN" FontSize="10" FontWeight="Bold" Foreground="#9CA3AF" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <TextBlock Text="BAN" FontSize="11" FontWeight="Bold" Foreground="#9CA3AF" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <ItemsControl ItemsSource="{Binding Bans100}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -168,8 +60,7 @@
                                 <DataTemplate>
                                     <Grid>
                                         <Image Source="{Binding}" Style="{StaticResource BanImageStyle}"/>
-                                        <!-- [修复] 空 Ban 显示叉号 -->
-                                        <Path Data="{StaticResource IconNoBan}" Stroke="#EF4444" StrokeThickness="2" Margin="8" Visibility="{Binding IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        <Path Data="{StaticResource IconNoBan}" Stroke="#EF4444" StrokeThickness="2" Margin="8" Visibility="{Binding IsEmptyBan, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -178,17 +69,17 @@
                 </StackPanel>
 
                 <!-- VS -->
-                <TextBlock Grid.Column="1" Text="VS" FontSize="28" FontWeight="Bold" Foreground="#D1D5DB" VerticalAlignment="Center" Margin="30,0"/>
+                <TextBlock Grid.Column="1" Text="VS" FontSize="36" FontWeight="Black" Foreground="#E5E7EB" VerticalAlignment="Center" Margin="40,10"/>
 
                 <!-- 红队 -->
                 <StackPanel Grid.Column="2" HorizontalAlignment="Right">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">
                         <TextBlock Text="红队" Margin="0,0,10,0" VerticalAlignment="Bottom" Foreground="#6B7280"/>
-                        <TextBlock Text="{Binding Team200Result}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource DefeatBrush}"/>
+                        <TextBlock Text="{Binding Team200Result}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource DefeatBrush}"/>
                     </StackPanel>
                     <TextBlock Text="{Binding Team200Obj}" Foreground="#6B7280" FontSize="12" HorizontalAlignment="Right"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0" HorizontalAlignment="Right">
-                        <TextBlock Text="BAN" FontSize="10" FontWeight="Bold" Foreground="#9CA3AF" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0" HorizontalAlignment="Right">
+                        <TextBlock Text="BAN" FontSize="11" FontWeight="Bold" Foreground="#9CA3AF" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <ItemsControl ItemsSource="{Binding Bans200}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -206,19 +97,19 @@
             </Grid>
         </Border>
 
-        <!-- 列表 -->
+        <!-- 列表内容 -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel>
                 <!-- 表头 -->
-                <Grid Margin="10,0,10,5">
+                <Grid Margin="12,0,12,8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="50"/>
-                        <ColumnDefinition Width="50"/>
-                        <ColumnDefinition Width="140"/>
-                        <ColumnDefinition Width="100"/>
-                        <ColumnDefinition Width="180"/>
-                        <ColumnDefinition Width="160"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="60"/>
+                        <ColumnDefinition Width="1.5*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1.8*"/>
+                        <ColumnDefinition Width="1.2*"/>
+                        <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="50"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="英雄" FontSize="12" Foreground="#9CA3AF"/>
@@ -231,19 +122,13 @@
                 </Grid>
 
                 <!-- 蓝队 -->
-                <Border Background="#EFF6FF" CornerRadius="4" Padding="5" Margin="0,0,0,10">
-                    <StackPanel>
-                        <TextBlock Text="蓝队" Foreground="{StaticResource VictoryBrush}" FontWeight="Bold" Margin="5,2"/>
-                        <ItemsControl ItemsSource="{Binding Team100}" ItemTemplate="{StaticResource PlayerRowTemplate}"/>
-                    </StackPanel>
+                <Border Background="#EFF6FF" CornerRadius="8" Padding="2" Margin="0,0,0,15">
+                    <ItemsControl ItemsSource="{Binding Team100}" ItemTemplate="{StaticResource PlayerRowTemplate}"/>
                 </Border>
 
                 <!-- 红队 -->
-                <Border Background="#FEF2F2" CornerRadius="4" Padding="5">
-                    <StackPanel>
-                        <TextBlock Text="红队" Foreground="{StaticResource DefeatBrush}" FontWeight="Bold" Margin="5,2"/>
-                        <ItemsControl ItemsSource="{Binding Team200}" ItemTemplate="{StaticResource PlayerRowTemplate}"/>
-                    </StackPanel>
+                <Border Background="#FEF2F2" CornerRadius="8" Padding="2">
+                    <ItemsControl ItemsSource="{Binding Team200}" ItemTemplate="{StaticResource PlayerRowTemplate}"/>
                 </Border>
             </StackPanel>
         </ScrollViewer>

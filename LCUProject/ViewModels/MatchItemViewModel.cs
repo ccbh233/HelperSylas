@@ -92,7 +92,7 @@ namespace HelperSylas.ViewModels
             OpenDetailCommand = new RelayCommand(_ => openDetailAction?.Invoke(GameId));
         }
 
-        private string GetQueueName(int id) => id switch 
+        public static string GetQueueName(int id) => id switch 
         { 
             420 => "排位赛 单双", 
             430 => "匹配模式", 

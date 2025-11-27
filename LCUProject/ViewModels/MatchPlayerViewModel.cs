@@ -109,8 +109,9 @@ namespace HelperSylas.ViewModels
             string cdn = $"https://ddragon.leagueoflegends.com/cdn/{ver}/img";
             Spell1Icon = GetSpellUrl(p.Spell1Id);
             Spell2Icon = GetSpellUrl(p.Spell2Id);
-            RuneMainIcon = $"https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/{GetRunePath(s?.Perk0)}.png";
-            RuneSubIcon = $"https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/{GetStyleIcon(s?.PerkSubStyle)}.png";
+            
+            RuneMainIcon = GetKeystoneUrl(s?.Perk0);
+            RuneSubIcon = $"https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/{GetStyleName(s?.PerkSubStyle)}.png";
 
             var ids = new[] { s?.Item0, s?.Item1, s?.Item2, s?.Item3, s?.Item4, s?.Item5, s?.Item6 };
             foreach (var id in ids)
@@ -127,19 +128,65 @@ namespace HelperSylas.ViewModels
             ScoreColor = GetScoreColor(score);
         }
 
+        private string GetKeystoneUrl(int? id)
+        {
+            string basePath = "https://ddragon.leagueoflegends.com/cdn/img/";
+            return id switch
+            {
+                // 精密系 (Precision)
+                8005 => basePath + "perk-images/Styles/Precision/PressTheAttack/PressTheAttack.png", // 强攻
+                8008 => basePath + "perk-images/Styles/Precision/LethalTempo/LethalTempoTemp.png", // 致命节奏
+                8021 => basePath + "perk-images/Styles/Precision/FleetFootwork/FleetFootwork.png", // 迅捷步法
+                8010 => basePath + "perk-images/Styles/Precision/Conqueror/Conqueror.png",         // 征服者
+
+                // 主宰系 (Domination)
+                8112 => basePath + "perk-images/Styles/Domination/Electrocute/Electrocute.png",    // 电刑
+                8124 => basePath + "perk-images/Styles/Domination/Predator/Predator.png",          // 掠食者
+                8128 => basePath + "perk-images/Styles/Domination/DarkHarvest/DarkHarvest.png",    // 黑暗收割
+                9923 => basePath + "perk-images/Styles/Domination/HailOfBlades/HailOfBlades.png",  // 丛刃
+
+                // 巫术系 (Sorcery)
+                8214 => basePath + "perk-images/Styles/Sorcery/SummonAery/SummonAery.png",         // 艾黎
+                8229 => basePath + "perk-images/Styles/Sorcery/ArcaneComet/ArcaneComet.png",       // 奥术彗星
+                8230 => basePath + "perk-images/Styles/Sorcery/PhaseRush/PhaseRush.png",           // 相位猛冲
+
+                // 坚决系 (Resolve)
+                8437 => basePath + "perk-images/Styles/Resolve/GraspOfTheUndying/GraspOfTheUndying.png", // 不灭
+                8439 => basePath + "perk-images/Styles/Resolve/VeteranAftershock/VeteranAftershock.png", // 余震
+                8465 => basePath + "perk-images/Styles/Resolve/Guardian/Guardian.png",                   // 守护者
+
+                // 启迪系 (Inspiration)
+                8351 => basePath + "perk-images/Styles/Inspiration/GlacialAugment/GlacialAugment.png",   // 冰川
+                8360 => basePath + "perk-images/Styles/Inspiration/UnsealedSpellbook/UnsealedSpellbook.png", // 启封
+                8369 => basePath + "perk-images/Styles/Inspiration/FirstStrike/FirstStrike.png",         // 先攻
+
+                _ => basePath + "perk-images/Styles/Precision/PressTheAttack/PressTheAttack.png" // 未知
+            };
+        }
+
+        private string GetStyleName(int? id) => id switch
+        {
+            8000 => "7201_Precision",
+            8100 => "7200_Domination",
+            8200 => "7202_Sorcery",
+            8300 => "7203_Whimsy",
+            8400 => "7204_Resolve",
+            _ => "RunesIcon"
+        };
+
         private double CalculateScore(MatchHistoryStats? s, int durationSec)
         {
             if (s == null) return 3.0;
             double score = 3.0;
 
             int k = s.Kills ?? 0; int d = s.Deaths ?? 0; int a = s.Assists ?? 0;
-            double kda = d == 0 ? (k + a) : (double)(k + a * 0.8) / d;
+            double kda = d == 0 ? (k + a) : (double)(k + a * 0.75) / d;
             score += Math.Min(kda, 10) * 0.5;
 
             // [调整] 转化率评分权重
             // 100% (1.0) 是及格，150% (1.5) 是优秀
             // 这里的权重系数调整为 2.0，即 150% 转化率能提供 3 分
-            score += Math.Min(_dmgConversionValue * 2.0, 4.0);
+            score += Math.Min(_dmgConversionValue * 2.0, 5.0);
 
             double vpm = (double)(s.VisionScore ?? 0) / (durationSec / 60.0);
             score += Math.Min(vpm * 2, 2.0);
